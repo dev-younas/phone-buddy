@@ -1,0 +1,8 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "t7KYFuRxmgZIJm_syt8Hv"
+uri = "file://artifacts/phone-helper/assets/images/icon.png"
+type = "image"
+title = "phone helper app icon"

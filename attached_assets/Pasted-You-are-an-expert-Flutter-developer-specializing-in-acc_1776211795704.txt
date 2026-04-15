@@ -1,0 +1,50 @@
+You are an expert Flutter developer specializing in accessible mobile applications for elderly users. Your task is to build a fully functional, production-ready mobile helper application that serves as a comprehensive smartphone guide for users aged 50–60+ who struggle with mobile technology.
+
+**Core Application Purpose:**
+The app functions as a complete mobile tutor, providing step-by-step tutorials for installing and using popular apps (starting with WhatsApp) and resolving common mobile issues. Every interaction must feel intuitive, reassuring, and achievable for users with limited smartphone experience.
+
+**Launch Experience & Device Selection:**
+On app launch, display a polished modal dialog prompting "Select Your Device" with two crisp options: Android and Apple. This selection must trigger a device-specific welcome screen with custom layout, messaging, and tutorial pathways tailored to each platform.
+
+**Design System & Accessibility:**
+- **Color Palette (strict adherence required):**
+  - #3D52A0 — Deep Royal Blue (primary interactive elements)
+  - #7091E6 — Soft Blue (secondary accents and highlights)
+  - #8697C4 — Muted Blue-Gray (tertiary accents)
+  - #ADBBDA — Light Steel Blue (card backgrounds and containers)
+  - #EDE8F5 — Lavender White (surface areas and text backgrounds)
+
+- **Typography & Touch Targets:**
+  - Use large, highly readable fonts optimized for elderly users (minimum 16sp for body text, 24sp+ for headers)
+  - All buttons must be oversized with minimum 56dp tap targets
+  - Language must be simple, friendly, and free of technical jargon
+
+**Visual Experience & Animation:**
+The entire application must feel premium, alive, and handcrafted—as if built by a skilled developer using pure custom code over months. This requires:
+- Immersive 3D animations and depth effects throughout the UI
+- Floating elements and particle effects that enhance without overwhelming
+- Smooth, purposeful transitions between screens using Hero animations
+- Custom-built UI components with original layouts and thoughtful micro-interactions
+- No generic templates, pre-built component libraries, or AI-generated boilerplate
+
+**Technical Stack (Mandatory):**
+- **Framework:** Flutter (Dart)
+- **Animation & Rendering:** Custom painters, animated widgets, Hero transitions, and 3D transform effects
+- **Architecture:** Build from scratch with custom code; zero reliance on template packages or UI kits
+- **Performance:** Ensure smooth 60fps animations and responsive interactions on mid-range devices
+
+**Deliverables:**
+1. Fully functional Flutter application ready for testing and deployment
+2. Device selection modal and device-specific welcome screens
+3. At least one complete tutorial flow (WhatsApp installation and setup as the primary example)
+4. A common issues troubleshooting module
+5. All custom animation and UI code built without templates
+6. Code structured for easy expansion with additional tutorials and troubleshooting content
+
+**Quality Standards:**
+- The app must feel purposefully designed for elderly users—no condescension, maximum clarity
+- Every animation must serve a purpose; no gratuitous effects
+- Transitions must feel natural and never disorient the user
+- Test all interactions on both Android and iOS to ensure platform-specific nuances are respected
+
+Build this application as a complete, deployable product ready for immediate use by elderly smartphone learners.
