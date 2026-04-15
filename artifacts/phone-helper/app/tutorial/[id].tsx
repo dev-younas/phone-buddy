@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   Animated,
   TouchableOpacity,
   Platform,
+  Dimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
@@ -17,13 +18,13 @@ import { tutorials } from "@/data/tutorials";
 import { StepCard } from "@/components/StepCard";
 import * as Haptics from "expo-haptics";
 
+const { width } = Dimensions.get("window");
+
 export default function TutorialScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const { deviceType, tutorialProgress, setTutorialProgress } = useApp();
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const progressAnim = useRef(new Animated.Value(0)).current;
 
   const tutorial = tutorials.find((t) => t.id === id);
   const isAndroid = deviceType === "android";
@@ -32,19 +33,50 @@ export default function TutorialScreen() {
   const savedStep = tutorial ? (tutorialProgress[tutorial.id] ?? 0) : 0;
   const [currentStep, setCurrentStep] = useState(savedStep);
 
+  const masterFade = useRef(new Animated.Value(0)).current;
+  const progressAnim = useRef(new Animated.Value(0)).current;
+  const headerSlide = useRef(new Animated.Value(-30)).current;
+  const stepTranslate = useRef(new Animated.Value(0)).current;
+  const stepOpacity = useRef(new Animated.Value(1)).current;
+  const buttonBounce = useRef(new Animated.Value(1)).current;
+  const completePop = useRef(new Animated.Value(0)).current;
+  const completeRotate = useRef(new Animated.Value(0)).current;
+  const scrollRef = useRef<ScrollView>(null);
+
   useEffect(() => {
-    Animated.timing(fadeAnim, { toValue: 1, duration: 400, useNativeDriver: true }).start();
+    Animated.parallel([
+      Animated.timing(masterFade, { toValue: 1, duration: 400, useNativeDriver: true }),
+      Animated.spring(headerSlide, { toValue: 0, tension: 70, friction: 8, useNativeDriver: true }),
+    ]).start();
   }, []);
 
   useEffect(() => {
     if (steps.length > 0) {
       Animated.timing(progressAnim, {
         toValue: currentStep / steps.length,
-        duration: 400,
+        duration: 500,
         useNativeDriver: false,
       }).start();
     }
   }, [currentStep, steps.length]);
+
+  const animateStepTransition = useCallback((direction: "forward" | "back", callback: () => void) => {
+    const outX = direction === "forward" ? -width * 0.25 : width * 0.25;
+    const inX = direction === "forward" ? width * 0.25 : -width * 0.25;
+
+    Animated.parallel([
+      Animated.timing(stepTranslate, { toValue: outX, duration: 200, useNativeDriver: true }),
+      Animated.timing(stepOpacity, { toValue: 0, duration: 200, useNativeDriver: true }),
+    ]).start(() => {
+      stepTranslate.setValue(inX);
+      callback();
+      Animated.parallel([
+        Animated.spring(stepTranslate, { toValue: 0, tension: 65, friction: 8, useNativeDriver: true }),
+        Animated.timing(stepOpacity, { toValue: 1, duration: 250, useNativeDriver: true }),
+      ]).start();
+      scrollRef.current?.scrollTo({ y: 0, animated: true });
+    });
+  }, []);
 
   if (!tutorial) {
     return (
@@ -58,16 +90,27 @@ export default function TutorialScreen() {
     if (Platform.OS !== "web") {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
-    const nextStep = currentStep + 1;
-    setCurrentStep(nextStep);
-    setTutorialProgress(tutorial!.id, nextStep);
+    Animated.sequence([
+      Animated.timing(buttonBounce, { toValue: 0.93, duration: 80, useNativeDriver: true }),
+      Animated.spring(buttonBounce, { toValue: 1, tension: 200, friction: 5, useNativeDriver: true }),
+    ]).start();
+    animateStepTransition("forward", () => {
+      const nextStep = currentStep + 1;
+      setCurrentStep(nextStep);
+      setTutorialProgress(tutorial!.id, nextStep);
+    });
   }
 
   function handleBack() {
     if (currentStep > 0) {
-      const prevStep = currentStep - 1;
-      setCurrentStep(prevStep);
-      setTutorialProgress(tutorial!.id, prevStep);
+      if (Platform.OS !== "web") {
+        Haptics.selectionAsync();
+      }
+      animateStepTransition("back", () => {
+        const prevStep = currentStep - 1;
+        setCurrentStep(prevStep);
+        setTutorialProgress(tutorial!.id, prevStep);
+      });
     } else {
       router.back();
     }
@@ -78,7 +121,15 @@ export default function TutorialScreen() {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     }
     setTutorialProgress(tutorial!.id, steps.length);
-    router.back();
+    setCurrentStep(steps.length);
+
+    Animated.sequence([
+      Animated.timing(stepOpacity, { toValue: 0, duration: 200, useNativeDriver: true }),
+      Animated.parallel([
+        Animated.spring(completePop, { toValue: 1, tension: 55, friction: 7, useNativeDriver: true }),
+        Animated.timing(completeRotate, { toValue: 1, duration: 600, useNativeDriver: true }),
+      ]),
+    ]).start();
   }
 
   const isLastStep = currentStep === steps.length - 1;
@@ -88,41 +139,119 @@ export default function TutorialScreen() {
 
   if (isComplete) {
     return (
-      <Animated.View style={[s.container, { opacity: fadeAnim }]}>
-        <View style={s.completeContainer}>
-          <View style={s.completeIcon}>
-            <Feather name="check-circle" size={80} color={colors.success} />
-          </View>
-          <Text style={s.completeTitle}>Well done!</Text>
-          <Text style={s.completeText}>
-            You have completed the {tutorial.title} tutorial. You are doing great!
-          </Text>
-          <TouchableOpacity
-            style={[s.button, { backgroundColor: colors.success }]}
-            onPress={() => router.back()}
-            activeOpacity={0.85}
-          >
-            <Feather name="arrow-left" size={22} color="#ffffff" />
-            <Text style={s.buttonText}>Back to Tutorials</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={s.restartButton}
-            onPress={() => {
-              setCurrentStep(0);
-              setTutorialProgress(tutorial.id, 0);
+      <Animated.View style={[s.container, { opacity: masterFade }]}>
+        <Animated.View style={[s.completeContainer, { opacity: completePop }]}>
+          <Animated.View
+            style={{
+              transform: [
+                { perspective: 800 },
+                {
+                  scale: completePop.interpolate({
+                    inputRange: [0, 0.5, 0.8, 1],
+                    outputRange: [0.3, 1.2, 0.9, 1],
+                  }),
+                },
+                {
+                  rotateY: completeRotate.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: ["180deg", "0deg"],
+                  }),
+                },
+              ],
             }}
-            activeOpacity={0.85}
           >
-            <Text style={s.restartButtonText}>Review Again</Text>
-          </TouchableOpacity>
-        </View>
+            <View style={s.completeIconBg}>
+              <Feather name="check-circle" size={72} color={colors.success} />
+            </View>
+          </Animated.View>
+
+          <Animated.Text
+            style={[
+              s.completeTitle,
+              {
+                transform: [
+                  {
+                    translateY: completePop.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [30, 0],
+                    }),
+                  },
+                ],
+                opacity: completePop,
+              },
+            ]}
+          >
+            Brilliant!
+          </Animated.Text>
+          <Animated.Text
+            style={[
+              s.completeText,
+              {
+                opacity: completePop,
+                transform: [
+                  {
+                    translateY: completePop.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [20, 0],
+                    }),
+                  },
+                ],
+              },
+            ]}
+          >
+            You have completed the {tutorial.title} tutorial. You are doing a great job — keep it up!
+          </Animated.Text>
+
+          <Animated.View
+            style={{
+              width: "100%",
+              opacity: completePop,
+              transform: [
+                {
+                  translateY: completePop.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [20, 0],
+                  }),
+                },
+              ],
+            }}
+          >
+            <TouchableOpacity
+              style={[s.button, { backgroundColor: colors.success }]}
+              onPress={() => router.back()}
+              activeOpacity={0.85}
+            >
+              <Feather name="arrow-left" size={22} color="#ffffff" />
+              <Text style={s.buttonText}>Back to Tutorials</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={s.backTextButton}
+              onPress={() => {
+                setCurrentStep(0);
+                setTutorialProgress(tutorial.id, 0);
+                completePop.setValue(0);
+                completeRotate.setValue(0);
+                masterFade.setValue(1);
+                stepOpacity.setValue(1);
+              }}
+              activeOpacity={0.85}
+            >
+              <Text style={s.backText}>Review Again</Text>
+            </TouchableOpacity>
+          </Animated.View>
+        </Animated.View>
       </Animated.View>
     );
   }
 
   return (
-    <Animated.View style={[s.container, { opacity: fadeAnim }]}>
-      <View style={s.topBar}>
+    <Animated.View style={[s.container, { opacity: masterFade }]}>
+      <Animated.View
+        style={[
+          s.topBar,
+          { transform: [{ translateY: headerSlide }] },
+        ]}
+      >
         <TouchableOpacity onPress={handleBack} style={s.backButton} activeOpacity={0.8}>
           <Feather name="arrow-left" size={24} color={colors.primary} />
         </TouchableOpacity>
@@ -138,21 +267,41 @@ export default function TutorialScreen() {
               },
             ]}
           />
+          <View style={s.progressGlow} />
         </View>
         <Text style={s.stepCounter}>
-          {currentStep + 1}/{steps.length}
+          {currentStep + 1} / {steps.length}
         </Text>
-      </View>
+      </Animated.View>
 
-      <View style={s.titleContainer}>
+      <Animated.View
+        style={[
+          s.titleContainer,
+          { transform: [{ translateY: headerSlide }] },
+        ]}
+      >
         <Text style={s.tutorialTitle}>{tutorial.title}</Text>
-        <Text style={s.tutorialPlatform}>
-          {isAndroid ? "Android steps" : "iPhone steps"}
-        </Text>
-      </View>
+        <View style={s.platformBadge}>
+          <Feather
+            name={isAndroid ? "cpu" : "monitor"}
+            size={13}
+            color={colors.secondary}
+          />
+          <Text style={s.platformBadgeText}>
+            {isAndroid ? "Android" : "iPhone"}
+          </Text>
+        </View>
+      </Animated.View>
 
-      <ScrollView
-        style={s.scrollView}
+      <Animated.ScrollView
+        ref={scrollRef as any}
+        style={[
+          s.scrollView,
+          {
+            opacity: stepOpacity,
+            transform: [{ translateX: stepTranslate }],
+          },
+        ]}
         contentContainerStyle={s.scrollContent}
         showsVerticalScrollIndicator={false}
       >
@@ -163,32 +312,35 @@ export default function TutorialScreen() {
             title={step.title}
             description={step.description}
             tip={step.tip}
+            image={step.image}
             isActive={index === currentStep}
             isCompleted={index < currentStep}
           />
         ))}
-      </ScrollView>
+      </Animated.ScrollView>
 
       <View style={s.footer}>
-        {isLastStep ? (
-          <TouchableOpacity
-            style={[s.button, { backgroundColor: colors.success }]}
-            onPress={handleFinish}
-            activeOpacity={0.85}
-          >
-            <Text style={s.buttonText}>I'm Done!</Text>
-            <Feather name="check-circle" size={22} color="#ffffff" style={{ marginLeft: 8 }} />
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity
-            style={s.button}
-            onPress={handleNext}
-            activeOpacity={0.85}
-          >
-            <Text style={s.buttonText}>I've Done This Step</Text>
-            <Feather name="arrow-right" size={22} color="#ffffff" style={{ marginLeft: 8 }} />
-          </TouchableOpacity>
-        )}
+        <Animated.View style={{ transform: [{ scale: buttonBounce }] }}>
+          {isLastStep ? (
+            <TouchableOpacity
+              style={[s.button, { backgroundColor: colors.success }]}
+              onPress={handleFinish}
+              activeOpacity={0.85}
+            >
+              <Text style={s.buttonText}>I'm Done!</Text>
+              <View style={s.buttonIconBox}>
+                <Feather name="check" size={20} color={colors.success} />
+              </View>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity style={s.button} onPress={handleNext} activeOpacity={0.85}>
+              <Text style={s.buttonText}>I've Done This Step</Text>
+              <View style={s.buttonIconBox}>
+                <Feather name="arrow-right" size={20} color={colors.primary} />
+              </View>
+            </TouchableOpacity>
+          )}
+        </Animated.View>
         <TouchableOpacity onPress={handleBack} style={s.backTextButton} activeOpacity={0.8}>
           <Text style={s.backText}>
             {currentStep === 0 ? "Back to Tutorials" : "Previous Step"}
@@ -199,7 +351,10 @@ export default function TutorialScreen() {
   );
 }
 
-const styles = (colors: ReturnType<typeof useColors>, insets: ReturnType<typeof useSafeAreaInsets>) =>
+const styles = (
+  colors: ReturnType<typeof useColors>,
+  insets: ReturnType<typeof useSafeAreaInsets>
+) =>
   StyleSheet.create({
     container: {
       flex: 1,
@@ -210,55 +365,76 @@ const styles = (colors: ReturnType<typeof useColors>, insets: ReturnType<typeof 
       flexDirection: "row",
       alignItems: "center",
       paddingHorizontal: 16,
-      paddingVertical: 12,
+      paddingVertical: 14,
       gap: 12,
     },
     backButton: {
-      width: 44,
-      height: 44,
-      borderRadius: 22,
+      width: 46,
+      height: 46,
+      borderRadius: 23,
       backgroundColor: "#ffffff",
       alignItems: "center",
       justifyContent: "center",
       shadowColor: colors.primary,
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 6,
-      elevation: 3,
+      shadowOffset: { width: 0, height: 3 },
+      shadowOpacity: 0.12,
+      shadowRadius: 8,
+      elevation: 4,
     },
     progressContainer: {
       flex: 1,
-      height: 8,
+      height: 10,
       backgroundColor: colors.steelBlue,
-      borderRadius: 4,
+      borderRadius: 5,
       overflow: "hidden",
     },
     progressFill: {
       height: "100%",
       backgroundColor: colors.primary,
-      borderRadius: 4,
+      borderRadius: 5,
+    },
+    progressGlow: {
+      position: "absolute",
+      top: 0,
+      right: 0,
+      width: 20,
+      height: "100%",
+      backgroundColor: "rgba(255,255,255,0.4)",
+      borderRadius: 5,
     },
     stepCounter: {
-      fontSize: 16,
-      fontFamily: "Inter_600SemiBold",
+      fontSize: 15,
+      fontFamily: "Inter_700Bold",
       color: colors.primary,
-      minWidth: 40,
+      minWidth: 44,
       textAlign: "right",
     },
     titleContainer: {
       paddingHorizontal: 20,
       paddingBottom: 12,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 10,
     },
     tutorialTitle: {
       fontSize: 26,
       fontFamily: "Inter_700Bold",
       color: colors.primary,
-      marginBottom: 2,
+      flex: 1,
     },
-    tutorialPlatform: {
-      fontSize: 15,
-      fontFamily: "Inter_400Regular",
-      color: colors.mutedForeground,
+    platformBadge: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 4,
+      backgroundColor: colors.steelBlue,
+      borderRadius: 10,
+      paddingHorizontal: 10,
+      paddingVertical: 5,
+    },
+    platformBadgeText: {
+      fontSize: 12,
+      fontFamily: "Inter_600SemiBold",
+      color: colors.secondary,
     },
     scrollView: {
       flex: 1,
@@ -270,28 +446,42 @@ const styles = (colors: ReturnType<typeof useColors>, insets: ReturnType<typeof 
     footer: {
       paddingHorizontal: 20,
       paddingBottom: Platform.OS === "web" ? 34 : insets.bottom + 16,
-      paddingTop: 12,
+      paddingTop: 14,
       backgroundColor: colors.lavender,
-      gap: 10,
+      gap: 8,
+      shadowColor: colors.primary,
+      shadowOffset: { width: 0, height: -4 },
+      shadowOpacity: 0.06,
+      shadowRadius: 12,
+      elevation: 4,
     },
     button: {
       backgroundColor: colors.primary,
-      borderRadius: 18,
+      borderRadius: 20,
       paddingVertical: 20,
+      paddingHorizontal: 24,
       flexDirection: "row",
       alignItems: "center",
-      justifyContent: "center",
-      minHeight: 64,
+      justifyContent: "space-between",
+      minHeight: 66,
       shadowColor: colors.primary,
-      shadowOffset: { width: 0, height: 6 },
-      shadowOpacity: 0.3,
-      shadowRadius: 12,
-      elevation: 8,
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.32,
+      shadowRadius: 16,
+      elevation: 10,
     },
     buttonText: {
       fontSize: 19,
       fontFamily: "Inter_700Bold",
       color: "#ffffff",
+    },
+    buttonIconBox: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor: "#ffffff",
+      alignItems: "center",
+      justifyContent: "center",
     },
     backTextButton: {
       alignItems: "center",
@@ -307,13 +497,23 @@ const styles = (colors: ReturnType<typeof useColors>, insets: ReturnType<typeof 
       alignItems: "center",
       justifyContent: "center",
       paddingHorizontal: 32,
-      gap: 16,
+      gap: 18,
     },
-    completeIcon: {
-      marginBottom: 8,
+    completeIconBg: {
+      width: 140,
+      height: 140,
+      borderRadius: 70,
+      backgroundColor: "#ffffff",
+      alignItems: "center",
+      justifyContent: "center",
+      shadowColor: colors.success,
+      shadowOffset: { width: 0, height: 12 },
+      shadowOpacity: 0.3,
+      shadowRadius: 24,
+      elevation: 12,
     },
     completeTitle: {
-      fontSize: 36,
+      fontSize: 38,
       fontFamily: "Inter_700Bold",
       color: colors.primary,
     },
@@ -322,14 +522,6 @@ const styles = (colors: ReturnType<typeof useColors>, insets: ReturnType<typeof 
       fontFamily: "Inter_400Regular",
       color: colors.mutedForeground,
       textAlign: "center",
-      lineHeight: 28,
-    },
-    restartButton: {
-      paddingVertical: 12,
-    },
-    restartButtonText: {
-      fontSize: 16,
-      fontFamily: "Inter_500Medium",
-      color: colors.mutedForeground,
+      lineHeight: 29,
     },
   });

@@ -7,6 +7,7 @@ import {
   Animated,
   Dimensions,
   Platform,
+  ScrollView,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -14,7 +15,7 @@ import { useColors } from "@/hooks/useColors";
 import { DeviceType } from "@/context/AppContext";
 import * as Haptics from "expo-haptics";
 
-const { width, height } = Dimensions.get("window");
+const { width } = Dimensions.get("window");
 
 interface WelcomeScreenProps {
   deviceType: DeviceType;
@@ -24,38 +25,111 @@ interface WelcomeScreenProps {
 export function WelcomeScreen({ deviceType, onGetStarted }: WelcomeScreenProps) {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(40)).current;
-  const iconAnim = useRef(new Animated.Value(0)).current;
-  const pulseAnim = useRef(new Animated.Value(1)).current;
-
   const isAndroid = deviceType === "android";
+
+  const masterFade = useRef(new Animated.Value(0)).current;
+  const heroSlide = useRef(new Animated.Value(50)).current;
+  const iconSpin = useRef(new Animated.Value(0)).current;
+  const iconFloat = useRef(new Animated.Value(0)).current;
+  const iconRotateY = useRef(new Animated.Value(0)).current;
+  const ringPulse = useRef(new Animated.Value(1)).current;
+  const ringRotate = useRef(new Animated.Value(0)).current;
+  const featureSlide1 = useRef(new Animated.Value(40)).current;
+  const featureSlide2 = useRef(new Animated.Value(40)).current;
+  const featureSlide3 = useRef(new Animated.Value(40)).current;
+  const featureSlide4 = useRef(new Animated.Value(40)).current;
+  const featureOpacity1 = useRef(new Animated.Value(0)).current;
+  const featureOpacity2 = useRef(new Animated.Value(0)).current;
+  const featureOpacity3 = useRef(new Animated.Value(0)).current;
+  const featureOpacity4 = useRef(new Animated.Value(0)).current;
+  const buttonScale = useRef(new Animated.Value(0.88)).current;
+  const buttonOpacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     Animated.sequence([
       Animated.parallel([
-        Animated.timing(fadeAnim, { toValue: 1, duration: 600, useNativeDriver: true }),
-        Animated.timing(slideAnim, { toValue: 0, duration: 600, useNativeDriver: true }),
+        Animated.timing(masterFade, { toValue: 1, duration: 600, useNativeDriver: true }),
+        Animated.spring(heroSlide, { toValue: 0, tension: 65, friction: 9, useNativeDriver: true }),
       ]),
-      Animated.spring(iconAnim, { toValue: 1, tension: 60, friction: 7, useNativeDriver: true }),
+      Animated.spring(iconSpin, { toValue: 1, tension: 55, friction: 7, useNativeDriver: true }),
+      Animated.stagger(100, [
+        Animated.parallel([
+          Animated.spring(featureSlide1, { toValue: 0, tension: 70, friction: 8, useNativeDriver: true }),
+          Animated.timing(featureOpacity1, { toValue: 1, duration: 350, useNativeDriver: true }),
+        ]),
+        Animated.parallel([
+          Animated.spring(featureSlide2, { toValue: 0, tension: 70, friction: 8, useNativeDriver: true }),
+          Animated.timing(featureOpacity2, { toValue: 1, duration: 350, useNativeDriver: true }),
+        ]),
+        Animated.parallel([
+          Animated.spring(featureSlide3, { toValue: 0, tension: 70, friction: 8, useNativeDriver: true }),
+          Animated.timing(featureOpacity3, { toValue: 1, duration: 350, useNativeDriver: true }),
+        ]),
+        Animated.parallel([
+          Animated.spring(featureSlide4, { toValue: 0, tension: 70, friction: 8, useNativeDriver: true }),
+          Animated.timing(featureOpacity4, { toValue: 1, duration: 350, useNativeDriver: true }),
+        ]),
+      ]),
+      Animated.parallel([
+        Animated.spring(buttonScale, { toValue: 1, tension: 65, friction: 7, useNativeDriver: true }),
+        Animated.timing(buttonOpacity, { toValue: 1, duration: 300, useNativeDriver: true }),
+      ]),
     ]).start();
 
-    const pulse = Animated.loop(
+    const floatLoop = Animated.loop(
       Animated.sequence([
-        Animated.timing(pulseAnim, { toValue: 1.06, duration: 1400, useNativeDriver: true }),
-        Animated.timing(pulseAnim, { toValue: 1, duration: 1400, useNativeDriver: true }),
+        Animated.timing(iconFloat, { toValue: -10, duration: 1800, useNativeDriver: true }),
+        Animated.timing(iconFloat, { toValue: 0, duration: 1800, useNativeDriver: true }),
       ])
     );
-    pulse.start();
+    floatLoop.start();
 
-    return () => pulse.stop();
+    const rotateLoop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(iconRotateY, { toValue: 1, duration: 2600, useNativeDriver: true }),
+        Animated.timing(iconRotateY, { toValue: 0, duration: 2600, useNativeDriver: true }),
+      ])
+    );
+    rotateLoop.start();
+
+    const pulseLoop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(ringPulse, { toValue: 1.12, duration: 1600, useNativeDriver: true }),
+        Animated.timing(ringPulse, { toValue: 1, duration: 1600, useNativeDriver: true }),
+      ])
+    );
+    pulseLoop.start();
+
+    const ringLoop = Animated.loop(
+      Animated.timing(ringRotate, { toValue: 1, duration: 8000, useNativeDriver: true })
+    );
+    ringLoop.start();
+
+    return () => {
+      floatLoop.stop();
+      rotateLoop.stop();
+      pulseLoop.stop();
+      ringLoop.stop();
+    };
   }, []);
 
   function handleGetStarted() {
     if (Platform.OS !== "web") {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
-    onGetStarted();
+    Animated.spring(buttonScale, {
+      toValue: 0.93,
+      tension: 200,
+      friction: 5,
+      useNativeDriver: true,
+    }).start(() => {
+      Animated.spring(buttonScale, {
+        toValue: 1,
+        tension: 200,
+        friction: 5,
+        useNativeDriver: true,
+      }).start(onGetStarted);
+    });
   }
 
   const features = isAndroid
@@ -72,166 +146,248 @@ export function WelcomeScreen({ deviceType, onGetStarted }: WelcomeScreenProps) 
         { icon: "settings", text: "Manage your iPhone settings" },
       ];
 
+  const featureAnims = [
+    { slide: featureSlide1, opacity: featureOpacity1 },
+    { slide: featureSlide2, opacity: featureOpacity2 },
+    { slide: featureSlide3, opacity: featureOpacity3 },
+    { slide: featureSlide4, opacity: featureOpacity4 },
+  ];
+
   const s = styles(colors, insets);
 
   return (
-    <Animated.View
-      style={[
-        s.container,
-        {
-          opacity: fadeAnim,
-          transform: [{ translateY: slideAnim }],
-        },
-      ]}
-    >
-      <View style={s.heroSection}>
-        <Animated.View style={[s.iconRing, { transform: [{ scale: pulseAnim }] }]}>
-          <Animated.View
-            style={[
-              s.iconInner,
-              {
-                transform: [
-                  {
-                    scale: iconAnim.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: [0.5, 1],
-                    }),
-                  },
-                ],
-              },
-            ]}
-          >
-            <Feather
-              name={isAndroid ? "cpu" : "monitor"}
-              size={56}
-              color="#ffffff"
-            />
-          </Animated.View>
+    <Animated.View style={[s.container, { opacity: masterFade }]}>
+      <ScrollView
+        contentContainerStyle={s.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <Animated.View
+          style={[s.heroSection, { transform: [{ translateY: heroSlide }] }]}
+        >
+          <View style={s.orbitRingContainer}>
+            <Animated.View
+              style={[
+                s.orbitRing,
+                {
+                  transform: [
+                    { scale: ringPulse },
+                    {
+                      rotate: ringRotate.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: ["0deg", "360deg"],
+                      }),
+                    },
+                  ],
+                },
+              ]}
+            >
+              <View style={s.orbitDot1} />
+              <View style={s.orbitDot2} />
+              <View style={s.orbitDot3} />
+            </Animated.View>
+
+            <Animated.View
+              style={[
+                s.iconOuter,
+                {
+                  transform: [
+                    { translateY: iconFloat },
+                    { perspective: 800 },
+                    {
+                      rotateY: iconRotateY.interpolate({
+                        inputRange: [0, 0.5, 1],
+                        outputRange: ["0deg", "12deg", "0deg"],
+                      }),
+                    },
+                    {
+                      scale: iconSpin.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0.4, 1],
+                      }),
+                    },
+                  ],
+                  opacity: iconSpin,
+                },
+              ]}
+            >
+              <View style={s.iconInner}>
+                <Feather
+                  name={isAndroid ? "cpu" : "monitor"}
+                  size={58}
+                  color="#ffffff"
+                />
+              </View>
+            </Animated.View>
+          </View>
+
+          <Text style={s.greeting}>Welcome!</Text>
+          <Text style={s.headline}>
+            {isAndroid ? "Your Android Phone Guide" : "Your iPhone Guide"}
+          </Text>
+          <Text style={s.tagline}>
+            {isAndroid
+              ? "We will help you learn how to use your Android phone, step by step."
+              : "We will help you learn how to use your iPhone, step by step."}
+          </Text>
         </Animated.View>
 
-        <Text style={s.greeting}>Welcome!</Text>
-        <Text style={s.headline}>
-          {isAndroid
-            ? "Your Android Phone Guide"
-            : "Your iPhone Guide"}
-        </Text>
-        <Text style={s.tagline}>
-          {isAndroid
-            ? "We will help you learn how to use your Android phone, step by step."
-            : "We will help you learn how to use your iPhone, step by step."}
-        </Text>
-      </View>
+        <View style={s.featuresContainer}>
+          <Text style={s.featuresTitle}>What you will learn:</Text>
+          {features.map((feature, i) => (
+            <Animated.View
+              key={i}
+              style={[
+                s.featureRow,
+                {
+                  opacity: featureAnims[i].opacity,
+                  transform: [{ translateX: featureAnims[i].slide }],
+                },
+              ]}
+            >
+              <View style={s.featureIconBox}>
+                <Feather name={feature.icon as any} size={22} color={colors.primary} />
+              </View>
+              <Text style={s.featureText}>{feature.text}</Text>
+            </Animated.View>
+          ))}
+        </View>
 
-      <View style={s.featuresContainer}>
-        <Text style={s.featuresTitle}>What you will learn:</Text>
-        {features.map((feature, i) => (
-          <Animated.View
-            key={i}
-            style={[
-              s.featureRow,
-              {
-                opacity: iconAnim,
-                transform: [
-                  {
-                    translateX: iconAnim.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: [-20, 0],
-                    }),
-                  },
-                ],
-              },
-            ]}
-          >
-            <View style={s.featureIconBox}>
-              <Feather name={feature.icon as any} size={22} color={colors.primary} />
+        <Animated.View
+          style={{
+            transform: [{ scale: buttonScale }],
+            opacity: buttonOpacity,
+          }}
+        >
+          <TouchableOpacity style={s.button} onPress={handleGetStarted} activeOpacity={0.88}>
+            <Text style={s.buttonText}>Let's Get Started</Text>
+            <View style={s.buttonArrow}>
+              <Feather name="arrow-right" size={20} color={colors.primary} />
             </View>
-            <Text style={s.featureText}>{feature.text}</Text>
-          </Animated.View>
-        ))}
-      </View>
+          </TouchableOpacity>
+        </Animated.View>
 
-      <TouchableOpacity
-        style={s.button}
-        onPress={handleGetStarted}
-        activeOpacity={0.85}
-      >
-        <Text style={s.buttonText}>Let's Get Started</Text>
-        <Feather name="arrow-right" size={22} color="#ffffff" style={{ marginLeft: 8 }} />
-      </TouchableOpacity>
-
-      <Text style={s.reassurance}>
-        Don't worry — we will go slowly and explain everything clearly
-      </Text>
+        <Text style={s.reassurance}>
+          Don't worry — we will go slowly and explain everything clearly
+        </Text>
+      </ScrollView>
     </Animated.View>
   );
 }
 
-const styles = (colors: ReturnType<typeof useColors>, insets: ReturnType<typeof useSafeAreaInsets>) =>
+const styles = (
+  colors: ReturnType<typeof useColors>,
+  insets: ReturnType<typeof useSafeAreaInsets>
+) =>
   StyleSheet.create({
     container: {
       flex: 1,
       backgroundColor: colors.lavender,
+    },
+    scrollContent: {
       paddingHorizontal: 24,
-      paddingTop: Platform.OS === "web" ? Math.max(insets.top, 67) : insets.top + 20,
+      paddingTop: Platform.OS === "web" ? Math.max(insets.top, 67) : insets.top + 16,
       paddingBottom: Platform.OS === "web" ? 34 : insets.bottom + 20,
     },
     heroSection: {
       alignItems: "center",
       marginBottom: 32,
     },
-    iconRing: {
-      width: 140,
-      height: 140,
-      borderRadius: 70,
+    orbitRingContainer: {
+      width: 170,
+      height: 170,
+      alignItems: "center",
+      justifyContent: "center",
+      marginBottom: 20,
+    },
+    orbitRing: {
+      position: "absolute",
+      width: 160,
+      height: 160,
+      borderRadius: 80,
+      borderWidth: 1.5,
+      borderColor: colors.steelBlue,
+      borderStyle: "dashed",
+    },
+    orbitDot1: {
+      position: "absolute",
+      top: -5,
+      left: "50%",
+      width: 10,
+      height: 10,
+      borderRadius: 5,
+      backgroundColor: colors.secondary,
+      marginLeft: -5,
+    },
+    orbitDot2: {
+      position: "absolute",
+      bottom: 12,
+      left: 12,
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+      backgroundColor: colors.muted,
+    },
+    orbitDot3: {
+      position: "absolute",
+      bottom: 12,
+      right: 12,
+      width: 6,
+      height: 6,
+      borderRadius: 3,
+      backgroundColor: colors.primary,
+    },
+    iconOuter: {
+      width: 124,
+      height: 124,
+      borderRadius: 62,
       backgroundColor: colors.steelBlue,
       alignItems: "center",
       justifyContent: "center",
-      marginBottom: 24,
       shadowColor: colors.primary,
-      shadowOffset: { width: 0, height: 8 },
-      shadowOpacity: 0.25,
-      shadowRadius: 16,
-      elevation: 10,
+      shadowOffset: { width: 0, height: 12 },
+      shadowOpacity: 0.35,
+      shadowRadius: 20,
+      elevation: 14,
     },
     iconInner: {
-      width: 100,
-      height: 100,
-      borderRadius: 50,
+      width: 96,
+      height: 96,
+      borderRadius: 48,
       backgroundColor: colors.primary,
       alignItems: "center",
       justifyContent: "center",
     },
     greeting: {
-      fontSize: 18,
+      fontSize: 17,
       fontFamily: "Inter_500Medium",
       color: colors.muted,
       marginBottom: 6,
     },
     headline: {
-      fontSize: 32,
+      fontSize: 30,
       fontFamily: "Inter_700Bold",
       color: colors.primary,
       textAlign: "center",
       marginBottom: 12,
     },
     tagline: {
-      fontSize: 18,
+      fontSize: 17,
       fontFamily: "Inter_400Regular",
       color: colors.mutedForeground,
       textAlign: "center",
-      lineHeight: 28,
-      paddingHorizontal: 8,
+      lineHeight: 27,
+      paddingHorizontal: 12,
     },
     featuresContainer: {
       backgroundColor: "#ffffff",
-      borderRadius: 20,
-      padding: 20,
+      borderRadius: 22,
+      padding: 22,
       marginBottom: 28,
       shadowColor: colors.primary,
-      shadowOffset: { width: 0, height: 4 },
+      shadowOffset: { width: 0, height: 6 },
       shadowOpacity: 0.1,
-      shadowRadius: 12,
-      elevation: 4,
+      shadowRadius: 16,
+      elevation: 5,
     },
     featuresTitle: {
       fontSize: 18,
@@ -245,9 +401,9 @@ const styles = (colors: ReturnType<typeof useColors>, insets: ReturnType<typeof 
       marginBottom: 14,
     },
     featureIconBox: {
-      width: 44,
-      height: 44,
-      borderRadius: 22,
+      width: 46,
+      height: 46,
+      borderRadius: 14,
       backgroundColor: colors.lavender,
       alignItems: "center",
       justifyContent: "center",
@@ -258,28 +414,38 @@ const styles = (colors: ReturnType<typeof useColors>, insets: ReturnType<typeof 
       fontFamily: "Inter_400Regular",
       color: colors.foreground,
       flex: 1,
-      lineHeight: 24,
+      lineHeight: 25,
     },
     button: {
-      backgroundColor: colors.primary,
-      borderRadius: 18,
+      backgroundColor: "#ffffff",
+      borderRadius: 20,
       paddingVertical: 20,
-      paddingHorizontal: 32,
+      paddingHorizontal: 28,
       flexDirection: "row",
       alignItems: "center",
-      justifyContent: "center",
+      justifyContent: "space-between",
       marginBottom: 16,
       shadowColor: colors.primary,
-      shadowOffset: { width: 0, height: 8 },
-      shadowOpacity: 0.35,
-      shadowRadius: 16,
+      shadowOffset: { width: 0, height: 10 },
+      shadowOpacity: 0.18,
+      shadowRadius: 20,
       elevation: 10,
-      minHeight: 64,
+      borderWidth: 2,
+      borderColor: colors.steelBlue,
+      minHeight: 68,
     },
     buttonText: {
       fontSize: 20,
       fontFamily: "Inter_700Bold",
-      color: "#ffffff",
+      color: colors.primary,
+    },
+    buttonArrow: {
+      width: 44,
+      height: 44,
+      borderRadius: 22,
+      backgroundColor: colors.lavender,
+      alignItems: "center",
+      justifyContent: "center",
     },
     reassurance: {
       fontSize: 14,
@@ -287,5 +453,6 @@ const styles = (colors: ReturnType<typeof useColors>, insets: ReturnType<typeof 
       color: colors.mutedForeground,
       textAlign: "center",
       lineHeight: 22,
+      paddingBottom: 10,
     },
   });

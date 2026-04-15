@@ -6,3 +6,63 @@ id = "t7KYFuRxmgZIJm_syt8Hv"
 uri = "file://artifacts/phone-helper/assets/images/icon.png"
 type = "image"
 title = "phone helper app icon"
+
+[[generated]]
+id = "ENRgG8c001pkbTCDAUCEr"
+uri = "file://artifacts/phone-helper/assets/tutorial/android_playstore_open.png"
+type = "image"
+title = "open play store step"
+
+[[generated]]
+id = "3hTWI8paX_CUwiQ7phmiO"
+uri = "file://artifacts/phone-helper/assets/tutorial/android_search_whatsapp.png"
+type = "image"
+title = "search whatsapp android"
+
+[[generated]]
+id = "EcqfZZk9C4HUWCF2_hYU9"
+uri = "file://artifacts/phone-helper/assets/tutorial/android_whatsapp_result.png"
+type = "image"
+title = "whatsapp search result"
+
+[[generated]]
+id = "aNDBAHDH8Yzjmk1NDch2v"
+uri = "file://artifacts/phone-helper/assets/tutorial/android_install_button.png"
+type = "image"
+title = "install button tap"
+
+[[generated]]
+id = "kds4PlAScgZfRNa4Vuxl8"
+uri = "file://artifacts/phone-helper/assets/tutorial/enter_phone_number.png"
+type = "image"
+title = "enter phone number"
+
+[[generated]]
+id = "QVbCi_4CjHeRQZsRvRt17"
+uri = "file://artifacts/phone-helper/assets/tutorial/verification_code.png"
+type = "image"
+title = "verification code entry"
+
+[[generated]]
+id = "lmzS4WcHz4hmN6V2Ii8Lb"
+uri = "file://artifacts/phone-helper/assets/tutorial/profile_setup.png"
+type = "image"
+title = "profile setup screen"
+
+[[generated]]
+id = "QuhMX24U1fkpOQjVZ8_DN"
+uri = "file://artifacts/phone-helper/assets/tutorial/whatsapp_complete.png"
+type = "image"
+title = "whatsapp setup complete"
+
+[[generated]]
+id = "DKjkA_HRrq0-GOZ7uZKWZ"
+uri = "file://artifacts/phone-helper/assets/tutorial/apple_appstore_open.png"
+type = "image"
+title = "open app store ios"
+
+[[generated]]
+id = "QFPuMStN_4aPMgWMa7yuF"
+uri = "file://artifacts/phone-helper/assets/tutorial/apple_get_button.png"
+type = "image"
+title = "get button app store"

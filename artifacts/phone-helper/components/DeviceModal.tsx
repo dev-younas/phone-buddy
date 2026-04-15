@@ -19,46 +19,56 @@ interface DeviceModalProps {
 
 export function DeviceModal({ visible, onSelect }: DeviceModalProps) {
   const colors = useColors();
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const scaleAnim = useRef(new Animated.Value(0.85)).current;
+
+  const overlayFade = useRef(new Animated.Value(0)).current;
+  const cardScale = useRef(new Animated.Value(0.6)).current;
+  const cardRotateX = useRef(new Animated.Value(1)).current;
+  const cardOpacity = useRef(new Animated.Value(0)).current;
+  const titleSlide = useRef(new Animated.Value(-20)).current;
+  const titleOpacity = useRef(new Animated.Value(0)).current;
   const androidAnim = useRef(new Animated.Value(0)).current;
   const appleAnim = useRef(new Animated.Value(0)).current;
+  const androidRotateY = useRef(new Animated.Value(-25)).current;
+  const appleRotateY = useRef(new Animated.Value(25)).current;
+  const footerOpacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (visible) {
-      Animated.parallel([
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-        Animated.spring(scaleAnim, {
-          toValue: 1,
-          tension: 65,
-          friction: 8,
-          useNativeDriver: true,
-        }),
-      ]).start(() => {
-        Animated.stagger(120, [
-          Animated.spring(androidAnim, {
-            toValue: 1,
-            tension: 70,
-            friction: 8,
-            useNativeDriver: true,
-          }),
-          Animated.spring(appleAnim, {
-            toValue: 1,
-            tension: 70,
-            friction: 8,
-            useNativeDriver: true,
-          }),
-        ]).start();
-      });
+      Animated.sequence([
+        Animated.timing(overlayFade, { toValue: 1, duration: 280, useNativeDriver: true }),
+        Animated.parallel([
+          Animated.spring(cardScale, { toValue: 1, tension: 60, friction: 8, useNativeDriver: true }),
+          Animated.timing(cardOpacity, { toValue: 1, duration: 350, useNativeDriver: true }),
+          Animated.spring(cardRotateX, { toValue: 0, tension: 55, friction: 9, useNativeDriver: true }),
+        ]),
+        Animated.parallel([
+          Animated.timing(titleOpacity, { toValue: 1, duration: 300, useNativeDriver: true }),
+          Animated.spring(titleSlide, { toValue: 0, tension: 70, friction: 8, useNativeDriver: true }),
+        ]),
+        Animated.stagger(150, [
+          Animated.parallel([
+            Animated.spring(androidAnim, { toValue: 1, tension: 65, friction: 7, useNativeDriver: true }),
+            Animated.spring(androidRotateY, { toValue: 0, tension: 60, friction: 8, useNativeDriver: true }),
+          ]),
+          Animated.parallel([
+            Animated.spring(appleAnim, { toValue: 1, tension: 65, friction: 7, useNativeDriver: true }),
+            Animated.spring(appleRotateY, { toValue: 0, tension: 60, friction: 8, useNativeDriver: true }),
+          ]),
+        ]),
+        Animated.timing(footerOpacity, { toValue: 1, duration: 250, useNativeDriver: true }),
+      ]).start();
     } else {
-      fadeAnim.setValue(0);
-      scaleAnim.setValue(0.85);
+      overlayFade.setValue(0);
+      cardScale.setValue(0.6);
+      cardRotateX.setValue(1);
+      cardOpacity.setValue(0);
+      titleSlide.setValue(-20);
+      titleOpacity.setValue(0);
       androidAnim.setValue(0);
       appleAnim.setValue(0);
+      androidRotateY.setValue(-25);
+      appleRotateY.setValue(25);
+      footerOpacity.setValue(0);
     }
   }, [visible]);
 
@@ -71,17 +81,31 @@ export function DeviceModal({ visible, onSelect }: DeviceModalProps) {
 
   return (
     <Modal visible={visible} transparent animationType="none" statusBarTranslucent>
-      <Animated.View style={[s(colors).overlay, { opacity: fadeAnim }]}>
+      <Animated.View style={[s(colors).overlay, { opacity: overlayFade }]}>
         <Animated.View
           style={[
             s(colors).card,
             {
-              transform: [{ scale: scaleAnim }],
-              opacity: fadeAnim,
+              opacity: cardOpacity,
+              transform: [
+                { perspective: 1200 },
+                { scale: cardScale },
+                {
+                  rotateX: cardRotateX.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: ["0deg", "20deg"],
+                  }),
+                },
+              ],
             },
           ]}
         >
-          <View style={s(colors).headerContainer}>
+          <Animated.View
+            style={[
+              s(colors).headerContainer,
+              { opacity: titleOpacity, transform: [{ translateY: titleSlide }] },
+            ]}
+          >
             <View style={s(colors).iconCircle}>
               <Feather name="smartphone" size={32} color={colors.primary} />
             </View>
@@ -89,7 +113,7 @@ export function DeviceModal({ visible, onSelect }: DeviceModalProps) {
             <Text style={s(colors).subtitle}>
               We will customize your experience to match your device
             </Text>
-          </View>
+          </Animated.View>
 
           <View style={s(colors).buttonsRow}>
             <Animated.View
@@ -97,10 +121,17 @@ export function DeviceModal({ visible, onSelect }: DeviceModalProps) {
                 flex: 1,
                 opacity: androidAnim,
                 transform: [
+                  { perspective: 900 },
                   {
-                    translateY: androidAnim.interpolate({
+                    rotateY: androidRotateY.interpolate({
+                      inputRange: [-30, 0],
+                      outputRange: ["-30deg", "0deg"],
+                    }),
+                  },
+                  {
+                    scale: androidAnim.interpolate({
                       inputRange: [0, 1],
-                      outputRange: [20, 0],
+                      outputRange: [0.7, 1],
                     }),
                   },
                 ],
@@ -124,10 +155,17 @@ export function DeviceModal({ visible, onSelect }: DeviceModalProps) {
                 flex: 1,
                 opacity: appleAnim,
                 transform: [
+                  { perspective: 900 },
                   {
-                    translateY: appleAnim.interpolate({
+                    rotateY: appleRotateY.interpolate({
+                      inputRange: [0, 30],
+                      outputRange: ["0deg", "30deg"],
+                    }),
+                  },
+                  {
+                    scale: appleAnim.interpolate({
                       inputRange: [0, 1],
-                      outputRange: [20, 0],
+                      outputRange: [0.7, 1],
                     }),
                   },
                 ],
@@ -147,9 +185,9 @@ export function DeviceModal({ visible, onSelect }: DeviceModalProps) {
             </Animated.View>
           </View>
 
-          <Text style={s(colors).footnote}>
+          <Animated.Text style={[s(colors).footnote, { opacity: footerOpacity }]}>
             You can change this later in Settings
-          </Text>
+          </Animated.Text>
         </Animated.View>
       </Animated.View>
     </Modal>
@@ -160,35 +198,40 @@ const s = (colors: ReturnType<typeof useColors>) =>
   StyleSheet.create({
     overlay: {
       flex: 1,
-      backgroundColor: "rgba(61,82,160,0.55)",
+      backgroundColor: "rgba(61,82,160,0.6)",
       alignItems: "center",
       justifyContent: "center",
       paddingHorizontal: 24,
     },
     card: {
       backgroundColor: colors.lavender,
-      borderRadius: 28,
+      borderRadius: 30,
       padding: 28,
       width: "100%",
       maxWidth: 420,
       shadowColor: colors.primary,
-      shadowOffset: { width: 0, height: 12 },
-      shadowOpacity: 0.25,
-      shadowRadius: 24,
-      elevation: 16,
+      shadowOffset: { width: 0, height: 16 },
+      shadowOpacity: 0.3,
+      shadowRadius: 28,
+      elevation: 18,
     },
     headerContainer: {
       alignItems: "center",
       marginBottom: 28,
     },
     iconCircle: {
-      width: 72,
-      height: 72,
-      borderRadius: 36,
+      width: 76,
+      height: 76,
+      borderRadius: 38,
       backgroundColor: colors.steelBlue,
       alignItems: "center",
       justifyContent: "center",
       marginBottom: 16,
+      shadowColor: colors.primary,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.15,
+      shadowRadius: 10,
+      elevation: 4,
     },
     title: {
       fontSize: 26,
@@ -210,13 +253,13 @@ const s = (colors: ReturnType<typeof useColors>) =>
       marginBottom: 20,
     },
     deviceButton: {
-      borderRadius: 20,
+      borderRadius: 22,
       padding: 20,
       alignItems: "center",
-      shadowOffset: { width: 0, height: 6 },
-      shadowOpacity: 0.3,
-      shadowRadius: 12,
-      elevation: 8,
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.35,
+      shadowRadius: 16,
+      elevation: 10,
     },
     androidButton: {
       backgroundColor: colors.primary,
@@ -227,9 +270,9 @@ const s = (colors: ReturnType<typeof useColors>) =>
       shadowColor: colors.secondary,
     },
     deviceIconBox: {
-      width: 72,
-      height: 72,
-      borderRadius: 36,
+      width: 76,
+      height: 76,
+      borderRadius: 38,
       backgroundColor: "rgba(255,255,255,0.2)",
       alignItems: "center",
       justifyContent: "center",
@@ -244,7 +287,7 @@ const s = (colors: ReturnType<typeof useColors>) =>
     deviceSubLabel: {
       fontSize: 13,
       fontFamily: "Inter_400Regular",
-      color: "rgba(255,255,255,0.8)",
+      color: "rgba(255,255,255,0.82)",
       textAlign: "center",
       lineHeight: 19,
     },
