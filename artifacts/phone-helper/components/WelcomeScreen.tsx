@@ -8,6 +8,7 @@ import {
   Dimensions,
   Platform,
   ScrollView,
+  Image,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -196,7 +197,7 @@ export function WelcomeScreen({ deviceType, onGetStarted }: WelcomeScreenProps) 
                     {
                       rotateY: iconRotateY.interpolate({
                         inputRange: [0, 0.5, 1],
-                        outputRange: ["0deg", "12deg", "0deg"],
+                        outputRange: ["0deg", "14deg", "0deg"],
                       }),
                     },
                     {
@@ -210,13 +211,11 @@ export function WelcomeScreen({ deviceType, onGetStarted }: WelcomeScreenProps) 
                 },
               ]}
             >
-              <View style={s.iconInner}>
-                <Feather
-                  name={isAndroid ? "cpu" : "monitor"}
-                  size={58}
-                  color="#ffffff"
-                />
-              </View>
+              <Image
+                source={require("../assets/logo.jpeg")}
+                style={s.logoImage}
+                resizeMode="cover"
+              />
             </Animated.View>
           </View>
 
@@ -337,25 +336,21 @@ const styles = (
       backgroundColor: colors.primary,
     },
     iconOuter: {
-      width: 124,
-      height: 124,
-      borderRadius: 62,
+      width: 134,
+      height: 134,
+      borderRadius: 67,
+      overflow: "hidden",
       backgroundColor: colors.steelBlue,
-      alignItems: "center",
-      justifyContent: "center",
       shadowColor: colors.primary,
-      shadowOffset: { width: 0, height: 12 },
+      shadowOffset: { width: 0, height: 14 },
       shadowOpacity: 0.35,
-      shadowRadius: 20,
+      shadowRadius: 22,
       elevation: 14,
     },
-    iconInner: {
-      width: 96,
-      height: 96,
-      borderRadius: 48,
-      backgroundColor: colors.primary,
-      alignItems: "center",
-      justifyContent: "center",
+    logoImage: {
+      width: 134,
+      height: 134,
+      borderRadius: 67,
     },
     greeting: {
       fontSize: 17,

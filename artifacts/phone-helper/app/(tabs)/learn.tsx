@@ -7,6 +7,7 @@ import {
   Animated,
   Platform,
   TouchableOpacity,
+  Image,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
@@ -21,16 +22,26 @@ export default function LearnScreen() {
   const insets = useSafeAreaInsets();
   const { deviceType, tutorialProgress } = useApp();
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(20)).current;
+  const slideAnim = useRef(new Animated.Value(24)).current;
+  const logoScale = useRef(new Animated.Value(0.82)).current;
+  const logoOpacity = useRef(new Animated.Value(0)).current;
+  const logoRotate = useRef(new Animated.Value(0)).current;
 
   const isAndroid = deviceType === "android";
 
   useEffect(() => {
     Animated.parallel([
-      Animated.timing(fadeAnim, { toValue: 1, duration: 500, useNativeDriver: true }),
-      Animated.timing(slideAnim, { toValue: 0, duration: 500, useNativeDriver: true }),
+      Animated.timing(fadeAnim, { toValue: 1, duration: 450, useNativeDriver: true }),
+      Animated.spring(slideAnim, { toValue: 0, tension: 65, friction: 8, useNativeDriver: true }),
+      Animated.spring(logoScale, { toValue: 1, tension: 60, friction: 7, delay: 80, useNativeDriver: true }),
+      Animated.timing(logoOpacity, { toValue: 1, duration: 450, delay: 80, useNativeDriver: true }),
+      Animated.spring(logoRotate, { toValue: 1, tension: 50, friction: 9, delay: 80, useNativeDriver: true }),
     ]).start();
   }, []);
+
+  const completedCount = Object.values(tutorialProgress).filter(
+    (v) => v > 0
+  ).length;
 
   const s = styles(colors, insets);
 
@@ -42,12 +53,37 @@ export default function LearnScreen() {
     >
       <Animated.View style={{ transform: [{ translateY: slideAnim }] }}>
         <View style={s.header}>
-          <View>
-            <Text style={s.greeting}>
+          <Animated.View
+            style={{
+              opacity: logoOpacity,
+              transform: [
+                { perspective: 700 },
+                { scale: logoScale },
+                {
+                  rotateY: logoRotate.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: ["45deg", "0deg"],
+                  }),
+                },
+              ],
+            }}
+          >
+            <View style={[s.logoContainer, { shadowColor: colors.primary }]}>
+              <Image
+                source={require("../../assets/logo.jpeg")}
+                style={s.logoImage}
+                resizeMode="cover"
+              />
+            </View>
+          </Animated.View>
+
+          <View style={s.headerTextBlock}>
+            <Text style={s.appName}>PhoneBuddy</Text>
+            <Text style={s.subtitle}>
               {isAndroid ? "Android Tutorials" : "iPhone Tutorials"}
             </Text>
-            <Text style={s.subtitle}>Tap any topic to start learning</Text>
           </View>
+
           <View style={s.deviceBadge}>
             <Feather
               name={isAndroid ? "cpu" : "monitor"}
@@ -57,8 +93,18 @@ export default function LearnScreen() {
           </View>
         </View>
 
+        {completedCount > 0 && (
+          <View style={[s.progressBanner, { backgroundColor: colors.primary }]}>
+            <Feather name="trending-up" size={18} color="#ffffff" />
+            <Text style={s.progressBannerText}>
+              Great job! You have started {completedCount} tutorial{completedCount !== 1 ? "s" : ""}
+            </Text>
+          </View>
+        )}
+
         <View style={s.section}>
-          <Text style={s.sectionTitle}>App Tutorials</Text>
+          <Text style={s.sectionTitle}>Step-by-Step Guides</Text>
+          <Text style={s.sectionSubtitle}>Tap any guide to start — your progress is saved automatically</Text>
           {tutorials.map((tutorial) => (
             <TutorialCard
               key={tutorial.id}
@@ -78,7 +124,9 @@ export default function LearnScreen() {
         </View>
 
         <View style={s.tipsCard}>
-          <Feather name="star" size={22} color={colors.secondary} />
+          <View style={s.tipsIconRow}>
+            <Feather name="star" size={20} color="#ffffff" />
+          </View>
           <Text style={s.tipsTitle}>Quick Tip</Text>
           <Text style={s.tipsText}>
             You can always come back to where you left off — your progress is saved automatically!
@@ -103,27 +151,60 @@ const styles = (colors: ReturnType<typeof useColors>, insets: ReturnType<typeof 
     header: {
       flexDirection: "row",
       alignItems: "center",
-      justifyContent: "space-between",
-      marginBottom: 28,
+      marginBottom: 24,
+      gap: 12,
     },
-    greeting: {
-      fontSize: 30,
+    logoContainer: {
+      width: 58,
+      height: 58,
+      borderRadius: 29,
+      overflow: "hidden",
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.18,
+      shadowRadius: 10,
+      elevation: 6,
+    },
+    logoImage: {
+      width: 58,
+      height: 58,
+      borderRadius: 29,
+    },
+    headerTextBlock: {
+      flex: 1,
+    },
+    appName: {
+      fontSize: 24,
       fontFamily: "Inter_700Bold",
       color: colors.primary,
-      marginBottom: 4,
+      lineHeight: 30,
     },
     subtitle: {
-      fontSize: 16,
+      fontSize: 14,
       fontFamily: "Inter_400Regular",
       color: colors.mutedForeground,
     },
     deviceBadge: {
-      width: 52,
-      height: 52,
-      borderRadius: 26,
+      width: 50,
+      height: 50,
+      borderRadius: 25,
       backgroundColor: colors.steelBlue,
       alignItems: "center",
       justifyContent: "center",
+    },
+    progressBanner: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 10,
+      borderRadius: 14,
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      marginBottom: 20,
+    },
+    progressBannerText: {
+      fontSize: 15,
+      fontFamily: "Inter_500Medium",
+      color: "#ffffff",
+      flex: 1,
     },
     section: {
       marginBottom: 24,
@@ -132,14 +213,29 @@ const styles = (colors: ReturnType<typeof useColors>, insets: ReturnType<typeof 
       fontSize: 20,
       fontFamily: "Inter_600SemiBold",
       color: colors.foreground,
-      marginBottom: 14,
+      marginBottom: 4,
+    },
+    sectionSubtitle: {
+      fontSize: 14,
+      fontFamily: "Inter_400Regular",
+      color: colors.mutedForeground,
+      marginBottom: 16,
     },
     tipsCard: {
       backgroundColor: colors.primary,
       borderRadius: 20,
-      padding: 20,
+      padding: 22,
       alignItems: "center",
-      gap: 8,
+      gap: 6,
+    },
+    tipsIconRow: {
+      width: 44,
+      height: 44,
+      borderRadius: 22,
+      backgroundColor: "rgba(255,255,255,0.2)",
+      alignItems: "center",
+      justifyContent: "center",
+      marginBottom: 4,
     },
     tipsTitle: {
       fontSize: 18,

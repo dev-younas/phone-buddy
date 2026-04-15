@@ -1,0 +1,38 @@
+You are a full-stack mobile application developer tasked with implementing critical features and fixes for an iOS and Android app built with modern cross-platform technology.
+
+Your objectives are:
+
+**1. Logo Implementation on Home Page**
+Display the provided logo image as the official app logo on the main home page. The logo should be properly sized, centered, and positioned at the top of the home screen with professional spacing and clean presentation.
+
+**2. 3D Animations & Visual Enhancement**
+Integrate high-quality 3D animations throughout the application to create a modern, visually appealing experience. Implement:
+- A 3D entrance/splash animation that plays when the app loads
+- Smooth 3D transitions between screens and pages
+- Interactive 3D micro-animations on buttons and key UI elements
+
+Ensure all animations are performant with no lag or frame drops. Use industry-standard 3D animation libraries appropriate to your tech stack (e.g., Three.js for web, Spline for cross-platform, or native 3D frameworks for iOS/Android).
+
+**3. Critical Bug Fix — White Screen After Setup Completion**
+Fix the onboarding/setup flow where users complete steps (WhatsApp connection and WiFi setup instructions). Currently, after the final step completes, the screen displays a white/blank screen with no content loading and the app becomes unresponsive. 
+
+The fix must ensure proper navigation to the next screen (main home/dashboard page) after the final setup step is completed, with no white screen, freeze, or loading failure. Debug the navigation logic, state management, and screen lifecycle to identify and resolve the root cause.
+
+**4. Complete Referral System (Android + iOS)**
+Implement a fully functional referral system for both platforms with these requirements:
+
+- Users receive a shareable unique referral link/code upon app opening with a visible share option
+- Each user has a distinct, persistent referral link tied to their account
+- When someone installs and opens the app via a referral link, the original referrer's referral count increments
+- Referral stats (count and link) are displayed in a prominent, accessible location (e.g., profile page or home screen)
+- Share functionality supports WhatsApp, SMS, and the native share sheet
+- The system works seamlessly on both Android and iOS with proper deep linking, attribution tracking, and persistence
+
+**Delivery Requirements:**
+- Provide clean, production-ready code
+- Ensure all four components work together without conflicts
+- Test thoroughly across both platforms before delivery
+- Fix the white screen bug as a priority before implementing new features
+- The logo image will be provided—integrate it exactly as specified
+
+Begin with the bug fix, then proceed with logo implementation, followed by 3D animations and the referral system.
