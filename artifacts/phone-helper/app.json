@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "Phone Helper",
-    "slug": "phone-helper",
+    "name": "phone-buddy",
+    "slug": "phonebuddy",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "phone-helper",
+    "scheme": "phonebuddy",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
@@ -14,9 +14,12 @@
       "backgroundColor": "#3D52A0"
     },
     "ios": {
-      "supportsTablet": false
+      "supportsTablet": false,
+      "bundleIdentifier": "com.phonebuddy.app"
     },
-    "android": {},
+    "android": {
+      "package": "com.phonebuddy.app"
+    },
     "web": {
       "favicon": "./assets/images/icon.png"
     },
