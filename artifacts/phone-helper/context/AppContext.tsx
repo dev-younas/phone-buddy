@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Appearance } from "react-native";
 
 export type DeviceType = "android" | "apple" | null;
 
@@ -10,6 +11,13 @@ function generateReferralCode(): string {
     result += chars[Math.floor(Math.random() * chars.length)];
   }
   return result;
+}
+
+export interface ChatMessage {
+  id: string;
+  text: string;
+  sender: "user" | "agent";
+  timestamp: number;
 }
 
 interface AppContextType {
@@ -23,9 +31,15 @@ interface AppContextType {
   referralCount: number;
   incrementReferralCount: () => void;
   isLoaded: boolean;
+  isDarkMode: boolean;
+  setIsDarkMode: (v: boolean) => void;
+  chatMessages: ChatMessage[];
+  addChatMessage: (msg: ChatMessage) => void;
+  chatUnread: number;
+  setChatUnread: (n: number) => void;
 }
 
-const AppContext = createContext<AppContextType | null>(null);
+export const AppContext = createContext<AppContextType | null>(null);
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [deviceType, setDeviceTypeState] = useState<DeviceType>(null);
@@ -34,9 +48,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [referralCode, setReferralCode] = useState("");
   const [referralCount, setReferralCount] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isDarkMode, setIsDarkModeState] = useState(false);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [chatUnread, setChatUnread] = useState(0);
 
   useEffect(() => {
     loadState();
+    const sub = Appearance.addChangeListener(({ colorScheme }) => {
+      // Only apply system preference if user hasn't overridden
+    });
+    return () => sub?.remove();
   }, []);
 
   async function loadState() {
@@ -48,6 +69,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         if (parsed.hasCompletedOnboarding) setHasCompletedOnboardingState(parsed.hasCompletedOnboarding);
         if (parsed.tutorialProgress) setTutorialProgressState(parsed.tutorialProgress);
         if (parsed.referralCount != null) setReferralCount(parsed.referralCount);
+        if (parsed.isDarkMode != null) setIsDarkModeState(parsed.isDarkMode);
+        if (parsed.chatMessages) setChatMessages(parsed.chatMessages);
+        if (parsed.chatUnread != null) setChatUnread(parsed.chatUnread);
         if (parsed.referralCode) {
           setReferralCode(parsed.referralCode);
         } else {
@@ -58,7 +82,17 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       } else {
         const code = generateReferralCode();
         setReferralCode(code);
-        saveStatePartial({ referralCode: code });
+        const sysScheme = Appearance.getColorScheme();
+        const dark = sysScheme === "dark";
+        setIsDarkModeState(dark);
+        const welcome: ChatMessage = {
+          id: "welcome",
+          text: "Hi there! 👋 Welcome to PhoneBuddy support! I'm Sarah, your support buddy. How can I help you today?",
+          sender: "agent",
+          timestamp: Date.now(),
+        };
+        setChatMessages([welcome]);
+        saveStatePartial({ referralCode: code, isDarkMode: dark, chatMessages: [welcome] });
       }
     } catch (e) {
       const code = generateReferralCode();
@@ -100,6 +134,19 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     saveStatePartial({ referralCount: next });
   }
 
+  function setIsDarkMode(v: boolean) {
+    setIsDarkModeState(v);
+    saveStatePartial({ isDarkMode: v });
+  }
+
+  function addChatMessage(msg: ChatMessage) {
+    setChatMessages((prev) => {
+      const next = [...prev, msg];
+      saveStatePartial({ chatMessages: next });
+      return next;
+    });
+  }
+
   return (
     <AppContext.Provider
       value={{
@@ -113,6 +160,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         referralCount,
         incrementReferralCount,
         isLoaded,
+        isDarkMode,
+        setIsDarkMode,
+        chatMessages,
+        addChatMessage,
+        chatUnread,
+        setChatUnread,
       }}
     >
       {children}

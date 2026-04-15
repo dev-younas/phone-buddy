@@ -5,12 +5,10 @@ import {
   StyleSheet,
   Animated,
   Image,
-  Dimensions,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useColors } from "@/hooks/useColors";
-
-const { width } = Dimensions.get("window");
+import { useApp } from "@/context/AppContext";
 
 interface StepCardProps {
   stepNumber: number;
@@ -32,12 +30,13 @@ export function StepCard({
   isCompleted,
 }: StepCardProps) {
   const colors = useColors();
+  const { isDarkMode } = useApp();
   const scaleAnim = useRef(new Animated.Value(isActive ? 1 : 0.97)).current;
   const fadeAnim = useRef(new Animated.Value(isActive ? 1 : 0.6)).current;
   const rotateX = useRef(new Animated.Value(isActive ? 0 : 3)).current;
   const imageReveal = useRef(new Animated.Value(0)).current;
-  const imageScale = useRef(new Animated.Value(0.88)).current;
-  const translateZ = useRef(new Animated.Value(isActive ? 8 : 0)).current;
+  const imageScale = useRef(new Animated.Value(0.86)).current;
+  const tipPulse = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
     Animated.parallel([
@@ -48,7 +47,7 @@ export function StepCard({
         useNativeDriver: true,
       }),
       Animated.timing(fadeAnim, {
-        toValue: isActive ? 1 : isCompleted ? 0.8 : 0.55,
+        toValue: isActive ? 1 : isCompleted ? 0.82 : 0.52,
         duration: 300,
         useNativeDriver: true,
       }),
@@ -64,31 +63,52 @@ export function StepCard({
       Animated.parallel([
         Animated.timing(imageReveal, {
           toValue: 1,
-          duration: 480,
-          delay: 120,
+          duration: 500,
+          delay: 140,
           useNativeDriver: true,
         }),
         Animated.spring(imageScale, {
           toValue: 1,
-          tension: 55,
+          tension: 52,
           friction: 8,
-          delay: 120,
+          delay: 140,
           useNativeDriver: true,
         }),
       ]).start();
+
+      const pulse = Animated.loop(
+        Animated.sequence([
+          Animated.timing(tipPulse, { toValue: 1.02, duration: 1200, useNativeDriver: true }),
+          Animated.timing(tipPulse, { toValue: 1, duration: 1200, useNativeDriver: true }),
+        ])
+      );
+      pulse.start();
+      return () => pulse.stop();
     } else {
       imageReveal.setValue(0);
-      imageScale.setValue(0.88);
+      imageScale.setValue(0.86);
     }
   }, [isActive, isCompleted]);
 
-  const s = styles(colors, isActive, isCompleted);
+  const cardBg = isActive
+    ? isDarkMode ? colors.card : "#FFFFFF"
+    : isCompleted
+    ? isDarkMode ? colors.muted : colors.muted
+    : "transparent";
+
+  const borderColor = isActive ? colors.primary : "transparent";
 
   return (
     <Animated.View
       style={[
-        s.card,
+        styles.card,
         {
+          backgroundColor: cardBg,
+          borderColor,
+          borderWidth: isActive ? 2.5 : 0,
+          padding: isActive ? 20 : 14,
+          shadowColor: isActive ? colors.primary : "transparent",
+          shadowOpacity: isActive ? 0.18 : 0,
           opacity: fadeAnim,
           transform: [
             { perspective: 900 },
@@ -103,29 +123,38 @@ export function StepCard({
         },
       ]}
     >
-      <View style={s.headerRow}>
-        <View style={s.stepNumberContainer}>
+      <View style={styles.headerRow}>
+        <View style={styles.stepNumberContainer}>
           {isCompleted ? (
-            <View style={s.checkCircle}>
-              <Feather name="check" size={18} color="#ffffff" />
+            <View style={[styles.checkCircle, { backgroundColor: colors.success }]}>
+              <Feather name="check" size={20} color="#ffffff" />
             </View>
           ) : (
-            <View style={[s.stepCircle, isActive && s.stepCircleActive]}>
-              <Text style={[s.stepNumber, isActive && s.stepNumberActive]}>
+            <View style={[
+              styles.stepCircle,
+              { backgroundColor: isActive ? colors.primary : colors.muted },
+            ]}>
+              <Text style={[styles.stepNumber, { color: isActive ? "#ffffff" : colors.mutedForeground }]}>
                 {stepNumber}
               </Text>
             </View>
           )}
         </View>
-        <View style={s.titleBlock}>
-          <Text style={s.title}>{title}</Text>
+        <View style={styles.titleBlock}>
+          <Text style={[
+            styles.title,
+            { fontSize: isActive ? 22 : 18 },
+            { color: isActive ? colors.primary : isCompleted ? colors.mutedForeground : colors.foreground },
+          ]}>
+            {title}
+          </Text>
         </View>
       </View>
 
       {isActive && image && (
         <Animated.View
           style={[
-            s.imageContainer,
+            styles.imageContainer,
             {
               opacity: imageReveal,
               transform: [
@@ -134,189 +163,158 @@ export function StepCard({
                 {
                   translateY: imageReveal.interpolate({
                     inputRange: [0, 1],
-                    outputRange: [16, 0],
+                    outputRange: [18, 0],
                   }),
                 },
               ],
             },
           ]}
         >
-          <View style={s.imageFrame}>
-            <Image
-              source={image}
-              style={s.image}
-              resizeMode="cover"
-            />
-            <View style={s.imageOverlayGradient} />
-            <View style={s.imageLabelBadge}>
-              <Feather name="eye" size={12} color="#ffffff" />
-              <Text style={s.imageLabelText}>What it looks like</Text>
+          <View style={[styles.imageFrame, { backgroundColor: colors.muted }]}>
+            <Image source={image} style={styles.image} resizeMode="cover" />
+            <View style={styles.imageOverlay} />
+            <View style={[styles.imageLabelBadge, { backgroundColor: "rgba(48,82,160,0.75)" }]}>
+              <Feather name="eye" size={13} color="#ffffff" />
+              <Text style={styles.imageLabelText}>What it looks like</Text>
             </View>
           </View>
         </Animated.View>
       )}
 
-      <Text style={s.description}>{description}</Text>
+      <Text style={[
+        styles.description,
+        { fontSize: isActive ? 18 : 16 },
+        { lineHeight: isActive ? 29 : 23 },
+        { color: isActive ? colors.foreground : colors.mutedForeground },
+        { marginLeft: 52 },
+      ]}>
+        {description}
+      </Text>
 
       {tip && isActive && (
-        <View style={s.tipBox}>
-          <View style={s.tipIconBox}>
-            <Feather name="info" size={15} color={colors.secondary} />
+        <Animated.View
+          style={[
+            styles.tipBox,
+            { backgroundColor: isDarkMode ? colors.muted : colors.muted, marginLeft: 52 },
+            { transform: [{ scale: tipPulse }] },
+          ]}
+        >
+          <View style={[styles.tipIconBox, { backgroundColor: colors.steelBlue }]}>
+            <Feather name="info" size={16} color={colors.secondary} />
           </View>
-          <Text style={s.tipText}>{tip}</Text>
-        </View>
+          <Text style={[styles.tipText, { color: colors.secondary, fontSize: 15 }]}>{tip}</Text>
+        </Animated.View>
       )}
     </Animated.View>
   );
 }
 
-const styles = (
-  colors: ReturnType<typeof useColors>,
-  isActive: boolean,
-  isCompleted: boolean
-) =>
-  StyleSheet.create({
-    card: {
-      marginBottom: 10,
-      padding: isActive ? 18 : 14,
-      borderRadius: 20,
-      backgroundColor: isActive
-        ? "#ffffff"
-        : isCompleted
-        ? colors.lavender
-        : "transparent",
-      borderWidth: isActive ? 2.5 : 0,
-      borderColor: isActive ? colors.primary : "transparent",
-      shadowColor: isActive ? colors.primary : "transparent",
-      shadowOffset: { width: 0, height: isActive ? 8 : 0 },
-      shadowOpacity: isActive ? 0.2 : 0,
-      shadowRadius: isActive ? 16 : 0,
-      elevation: isActive ? 6 : 0,
-    },
-    headerRow: {
-      flexDirection: "row",
-      alignItems: "flex-start",
-      marginBottom: isActive ? 10 : 4,
-    },
-    stepNumberContainer: {
-      marginRight: 14,
-      marginTop: 2,
-    },
-    checkCircle: {
-      width: 36,
-      height: 36,
-      borderRadius: 18,
-      backgroundColor: colors.success,
-      alignItems: "center",
-      justifyContent: "center",
-    },
-    stepCircle: {
-      width: 36,
-      height: 36,
-      borderRadius: 18,
-      backgroundColor: colors.steelBlue,
-      alignItems: "center",
-      justifyContent: "center",
-    },
-    stepCircleActive: {
-      backgroundColor: colors.primary,
-    },
-    stepNumber: {
-      fontSize: 17,
-      fontFamily: "Inter_700Bold",
-      color: colors.mutedForeground,
-    },
-    stepNumberActive: {
-      color: "#ffffff",
-    },
-    titleBlock: {
-      flex: 1,
-      paddingTop: 4,
-    },
-    title: {
-      fontSize: isActive ? 20 : 17,
-      fontFamily: "Inter_600SemiBold",
-      color: isActive
-        ? colors.primary
-        : isCompleted
-        ? colors.muted
-        : colors.foreground,
-      lineHeight: 26,
-    },
-    imageContainer: {
-      marginBottom: 14,
-      borderRadius: 16,
-      overflow: "hidden",
-    },
-    imageFrame: {
-      width: "100%",
-      height: 200,
-      borderRadius: 16,
-      overflow: "hidden",
-      position: "relative",
-      backgroundColor: colors.steelBlue,
-    },
-    image: {
-      width: "100%",
-      height: "100%",
-      borderRadius: 16,
-    },
-    imageOverlayGradient: {
-      position: "absolute",
-      bottom: 0,
-      left: 0,
-      right: 0,
-      height: 48,
-      backgroundColor: "rgba(61,82,160,0.18)",
-    },
-    imageLabelBadge: {
-      position: "absolute",
-      bottom: 10,
-      right: 10,
-      flexDirection: "row",
-      alignItems: "center",
-      gap: 4,
-      backgroundColor: "rgba(61,82,160,0.75)",
-      borderRadius: 10,
-      paddingHorizontal: 10,
-      paddingVertical: 4,
-    },
-    imageLabelText: {
-      fontSize: 11,
-      fontFamily: "Inter_600SemiBold",
-      color: "#ffffff",
-    },
-    description: {
-      fontSize: isActive ? 17 : 15,
-      fontFamily: "Inter_400Regular",
-      color: isActive ? colors.foreground : colors.mutedForeground,
-      lineHeight: isActive ? 28 : 22,
-      marginLeft: 50,
-    },
-    tipBox: {
-      flexDirection: "row",
-      alignItems: "flex-start",
-      backgroundColor: colors.lavender,
-      borderRadius: 12,
-      padding: 12,
-      marginTop: 12,
-      marginLeft: 50,
-      gap: 8,
-    },
-    tipIconBox: {
-      width: 24,
-      height: 24,
-      borderRadius: 12,
-      backgroundColor: colors.steelBlue,
-      alignItems: "center",
-      justifyContent: "center",
-      marginTop: 1,
-    },
-    tipText: {
-      fontSize: 14,
-      fontFamily: "Inter_400Regular",
-      color: colors.secondary,
-      flex: 1,
-      lineHeight: 21,
-    },
-  });
+const styles = StyleSheet.create({
+  card: {
+    marginBottom: 10,
+    borderRadius: 22,
+    shadowOffset: { width: 0, height: 8 },
+    shadowRadius: 18,
+    elevation: 6,
+  },
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    marginBottom: 10,
+  },
+  stepNumberContainer: {
+    marginRight: 14,
+    marginTop: 2,
+  },
+  checkCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  stepCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  stepNumber: {
+    fontSize: 18,
+    fontFamily: "Inter_700Bold",
+  },
+  titleBlock: {
+    flex: 1,
+    paddingTop: 4,
+  },
+  title: {
+    fontFamily: "Inter_700Bold",
+    lineHeight: 28,
+  },
+  imageContainer: {
+    marginBottom: 14,
+    borderRadius: 18,
+    overflow: "hidden",
+  },
+  imageFrame: {
+    width: "100%",
+    height: 210,
+    borderRadius: 18,
+    overflow: "hidden",
+    position: "relative",
+  },
+  image: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 18,
+  },
+  imageOverlay: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 50,
+    backgroundColor: "rgba(48,82,160,0.15)",
+  },
+  imageLabelBadge: {
+    position: "absolute",
+    bottom: 10,
+    right: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+  imageLabelText: {
+    fontSize: 12,
+    fontFamily: "Inter_600SemiBold",
+    color: "#ffffff",
+  },
+  description: {
+    fontFamily: "Inter_400Regular",
+  },
+  tipBox: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    borderRadius: 14,
+    padding: 13,
+    marginTop: 12,
+    gap: 10,
+  },
+  tipIconBox: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 1,
+  },
+  tipText: {
+    fontFamily: "Inter_400Regular",
+    flex: 1,
+    lineHeight: 23,
+  },
+});

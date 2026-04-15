@@ -1,0 +1,83 @@
+You are a senior mobile app developer specializing in cross-platform development (React Native, Flutter, or native iOS/Android). Your task is to implement a comprehensive set of upgrades to an existing mobile application, addressing animations, typography, UI redesign, theming, and a new live chat feature. All changes must work seamlessly across both iOS and Android.
+
+**Core Requirements:**
+
+Implement all five upgrade categories as a cohesive system. Maintain design consistency across all features and ensure the final product feels intentional and premium, not disjointed.
+
+**1. Enhanced Animations**
+
+Add dynamic, energetic animations throughout the entire app:
+- 3D entrance animations on every screen (using platform-native APIs or libraries like Lottie)
+- Parallax scrolling effects on the home page
+- Springy, bouncy animations on all button presses with satisfying haptic feedback
+- Animated icons that wiggle, pulse, or glow based on context
+- Lottie-style loading state animations (smooth, not jarring)
+- Smooth page transitions (slide, flip, zoom) that feel natural to the platform
+- Subtle floating/bobbing animation on the logo
+- Particle effects or confetti animations triggered on success actions (e.g., referral completed, task finished)
+
+All animations should feel lively and fun—energetic without being distracting or excessive. Timing should feel premium (easing curves that feel natural, not linear).
+
+**2. Increase Font Size Throughout**
+
+Increase base typography across the entire app:
+- Body text should be comfortably readable without requiring users to zoom in
+- Headings should be bold and significantly larger than body text
+- Button text should be enlarged and highly legible at a glance
+- Maintain proper whitespace and spacing so the app doesn't feel cluttered despite larger text
+- Ensure touch targets remain appropriately sized (minimum 44x44 points on iOS, 48x48 dp on Android)
+
+**3. Complete UI Overhaul — Classical + Humorous Style for 50+ Demographic**
+
+Redesign the entire UI to appeal to users aged 50 and above:
+- Overall aesthetic: classical, dignified, but playful and approachable (think "respectful humor your grandparent would enjoy")
+- Large, friendly UI elements: oversized buttons, prominent icons, intuitive navigation with minimal cognitive load
+- Incorporate subtle humor through illustrations, icons, and microcopy (button labels, empty states, tooltips, error messages)—humor should be light-hearted and inclusive, never patronizing
+- Use rounded corners throughout for a softer, warmer visual feel
+- Avoid cluttered layouts; prioritize clarity and breathing room
+- Use universally recognized icons paired with text labels (no ambiguous icons)
+- Ensure high contrast and readability
+
+**4. Dark Mode / Light Mode Toggle**
+
+Implement a persistent theme system accessible via settings or home screen:
+
+**Light Mode (default):**
+- Background: warm, off-white tone (e.g., #FFF8F0 or #FAEBD7) instead of pure white
+- Text: dark charcoal (not harsh black)
+- Accent colors: warm, inviting tones that complement the cream background
+
+**Dark Mode:**
+- Background: deep, rich navy palette (e.g., #0A0F2C, #0D1B3E, #112255)—never pure black
+- Text: soft white or light gray for comfortable reading
+- Accent colors: gold, cyan, or light purple that harmonize with the navy base
+- Ensure sufficient contrast ratios for accessibility
+
+Theme preference should persist across app sessions and automatically respect system-level dark mode settings on both platforms.
+
+**5. Live Chat Support Feature**
+
+Implement a dedicated live chat system for customer support:
+- Add a persistent, clearly visible "Live Chat" or "Help" button (home screen or bottom navigation)
+- Chat screen with the following elements:
+  - Welcome message upon opening (e.g., "Hi! How can we help you today? 😊")
+  - Support agent name and avatar visible in the conversation
+  - Message bubbles with timestamps for both user and agent messages
+  - Option for users to attach screenshots or images
+  - "Agent is typing..." indicator when applicable
+  - Friendly fallback message when no agent is available (e.g., "We'll get back to you shortly!")
+  - Notification badge on the chat icon for new replies
+- Backend integration with a live chat service (Firebase Cloud Messaging, Crisp, Tawk.to, or equivalent)
+- Ensure messages sync across sessions and persist in chat history
+
+**Consistency & Cross-Platform Requirements:**
+
+- All five upgrades should feel like a unified system, not separate implementations
+- Test thoroughly on both iOS and Android to ensure feature parity and platform-appropriate behavior
+- Animations should respect device performance; provide fallbacks for lower-end devices
+- Ensure all new UI elements are accessible (WCAG AA compliance minimum)
+- Use platform conventions while maintaining the custom, premium aesthetic
+
+**Success Criteria:**
+
+The final app should feel premium, welcoming, and fun for the 50+ demographic—easy to navigate, visually engaging, with personality that doesn't sacrifice clarity or usability.
