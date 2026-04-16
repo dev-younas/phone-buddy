@@ -272,13 +272,13 @@ const styles = (colors: ReturnType<typeof useColors>, insets: ReturnType<typeof 
       flex: 1,
     },
     appName: {
-      fontSize: 30,
+      fontSize: 36,
       fontFamily: "Inter_700Bold",
       color: colors.primary,
-      lineHeight: 36,
+      lineHeight: 42,
     },
     heroTagline: {
-      fontSize: 17,
+      fontSize: 20,
       fontFamily: "Inter_400Regular",
       color: colors.mutedForeground,
     },
@@ -293,7 +293,7 @@ const styles = (colors: ReturnType<typeof useColors>, insets: ReturnType<typeof 
       marginBottom: 16,
     },
     allDoneBannerText: {
-      fontSize: 17,
+      fontSize: 20,
       fontFamily: "Inter_600SemiBold",
       color: "#ffffff",
       flex: 1,
@@ -309,7 +309,7 @@ const styles = (colors: ReturnType<typeof useColors>, insets: ReturnType<typeof 
       marginBottom: 16,
     },
     progressBannerText: {
-      fontSize: 16,
+      fontSize: 20,
       fontFamily: "Inter_500Medium",
       color: "#ffffff",
       flex: 1,
@@ -319,17 +319,17 @@ const styles = (colors: ReturnType<typeof useColors>, insets: ReturnType<typeof 
       marginBottom: 20,
     },
     sectionTitle: {
-      fontSize: 24,
+      fontSize: 30,
       fontFamily: "Inter_700Bold",
       color: colors.foreground,
-      marginBottom: 4,
+      marginBottom: 6,
     },
     sectionSubtitle: {
-      fontSize: 16,
+      fontSize: 19,
       fontFamily: "Inter_400Regular",
       color: colors.mutedForeground,
       marginBottom: 18,
-      lineHeight: 24,
+      lineHeight: 29,
     },
     chatPromptCard: {
       flexDirection: "row",
@@ -355,13 +355,13 @@ const styles = (colors: ReturnType<typeof useColors>, insets: ReturnType<typeof 
     chatPromptEmoji: { fontSize: 24 },
     chatPromptText: { flex: 1 },
     chatPromptTitle: {
-      fontSize: 19,
+      fontSize: 22,
       fontFamily: "Inter_700Bold",
       color: "#ffffff",
-      marginBottom: 2,
+      marginBottom: 4,
     },
     chatPromptSub: {
-      fontSize: 14,
+      fontSize: 17,
       fontFamily: "Inter_400Regular",
       color: "rgba(255,255,255,0.85)",
     },
@@ -382,15 +382,15 @@ const styles = (colors: ReturnType<typeof useColors>, insets: ReturnType<typeof 
       marginBottom: 4,
     },
     tipsTitle: {
-      fontSize: 22,
+      fontSize: 26,
       fontFamily: "Inter_700Bold",
       color: "#ffffff",
     },
     tipsText: {
-      fontSize: 16,
+      fontSize: 20,
       fontFamily: "Inter_400Regular",
       color: "rgba(255,255,255,0.88)",
       textAlign: "center",
-      lineHeight: 26,
+      lineHeight: 32,
     },
   });

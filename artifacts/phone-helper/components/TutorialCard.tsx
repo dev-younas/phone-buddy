@@ -221,16 +221,16 @@ const s = (colors: ReturnType<typeof useColors>, isComplete: boolean, cardBg: st
       gap: 7,
     },
     title: {
-      fontSize: 21,
+      fontSize: 24,
       fontFamily: "Inter_700Bold",
     },
     badge: {
-      borderRadius: 9,
-      paddingHorizontal: 9,
-      paddingVertical: 3,
+      borderRadius: 10,
+      paddingHorizontal: 10,
+      paddingVertical: 4,
     },
     badgeText: {
-      fontSize: 12,
+      fontSize: 14,
       fontFamily: "Inter_600SemiBold",
       color: "#ffffff",
     },
@@ -242,9 +242,9 @@ const s = (colors: ReturnType<typeof useColors>, isComplete: boolean, cardBg: st
       justifyContent: "center",
     },
     description: {
-      fontSize: 15,
+      fontSize: 18,
       fontFamily: "Inter_400Regular",
-      lineHeight: 22,
+      lineHeight: 27,
       marginBottom: 12,
     },
     progressRow: {
@@ -263,9 +263,9 @@ const s = (colors: ReturnType<typeof useColors>, isComplete: boolean, cardBg: st
       borderRadius: 4,
     },
     progressText: {
-      fontSize: 13,
+      fontSize: 16,
       fontFamily: "Inter_600SemiBold",
-      minWidth: 56,
+      minWidth: 64,
       textAlign: "right",
     },
   });

@@ -143,11 +143,12 @@ export function StepCard({
         <View style={styles.titleBlock}>
           <Text style={[
             styles.title,
-            { fontSize: isActive ? 22 : 18 },
+            { fontSize: isActive ? 26 : 22 },
             { color: isActive ? colors.primary : isCompleted ? colors.mutedForeground : colors.foreground },
           ]}>
             {title}
           </Text>
+
         </View>
       </View>
 
@@ -183,8 +184,8 @@ export function StepCard({
 
       <Text style={[
         styles.description,
-        { fontSize: isActive ? 18 : 16 },
-        { lineHeight: isActive ? 29 : 23 },
+        { fontSize: isActive ? 21 : 19 },
+        { lineHeight: isActive ? 34 : 30 },
         { color: isActive ? colors.foreground : colors.mutedForeground },
         { marginLeft: 52 },
       ]}>
@@ -202,7 +203,7 @@ export function StepCard({
           <View style={[styles.tipIconBox, { backgroundColor: colors.steelBlue }]}>
             <Feather name="info" size={16} color={colors.secondary} />
           </View>
-          <Text style={[styles.tipText, { color: colors.secondary, fontSize: 15 }]}>{tip}</Text>
+          <Text style={[styles.tipText, { color: colors.secondary, fontSize: 19 }]}>{tip}</Text>
         </Animated.View>
       )}
     </Animated.View>
@@ -315,6 +316,6 @@ const styles = StyleSheet.create({
   tipText: {
     fontFamily: "Inter_400Regular",
     flex: 1,
-    lineHeight: 23,
+    lineHeight: 29,
   },
 });

@@ -391,9 +391,9 @@ const styles = (
       borderRadius: 6,
     },
     stepCounter: {
-      fontSize: 16,
+      fontSize: 20,
       fontFamily: "Inter_700Bold",
-      minWidth: 48,
+      minWidth: 52,
       textAlign: "right",
     },
     titleContainer: {
@@ -404,7 +404,7 @@ const styles = (
       gap: 10,
     },
     tutorialTitle: {
-      fontSize: 28,
+      fontSize: 34,
       fontFamily: "Inter_700Bold",
       flex: 1,
     },
@@ -417,7 +417,7 @@ const styles = (
       paddingVertical: 5,
     },
     platformBadgeText: {
-      fontSize: 13,
+      fontSize: 16,
       fontFamily: "Inter_600SemiBold",
     },
     scrollView: {
@@ -448,7 +448,7 @@ const styles = (
       elevation: 10,
     },
     buttonText: {
-      fontSize: 21,
+      fontSize: 26,
       fontFamily: "Inter_700Bold",
       color: "#ffffff",
     },
@@ -464,7 +464,7 @@ const styles = (
       paddingVertical: 10,
     },
     backText: {
-      fontSize: 17,
+      fontSize: 20,
       fontFamily: "Inter_500Medium",
     },
     completeContainer: {
@@ -487,13 +487,13 @@ const styles = (
       elevation: 12,
     },
     completeTitle: {
-      fontSize: 40,
+      fontSize: 46,
       fontFamily: "Inter_700Bold",
     },
     completeText: {
-      fontSize: 19,
+      fontSize: 23,
       fontFamily: "Inter_400Regular",
       textAlign: "center",
-      lineHeight: 31,
+      lineHeight: 36,
     },
   });

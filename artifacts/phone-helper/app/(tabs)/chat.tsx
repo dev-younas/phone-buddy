@@ -368,9 +368,9 @@ const s = (colors: ReturnType<typeof useColors>) =>
       flex: 1,
     },
     headerName: {
-      fontSize: 18,
+      fontSize: 22,
       fontFamily: "Inter_700Bold",
-      marginBottom: 3,
+      marginBottom: 4,
     },
     onlineRow: {
       flexDirection: "row",
@@ -378,12 +378,12 @@ const s = (colors: ReturnType<typeof useColors>) =>
       gap: 6,
     },
     onlineDot: {
-      width: 8,
-      height: 8,
-      borderRadius: 4,
+      width: 10,
+      height: 10,
+      borderRadius: 5,
     },
     onlineText: {
-      fontSize: 13,
+      fontSize: 16,
       fontFamily: "Inter_500Medium",
     },
     disclaimer: {
@@ -391,10 +391,10 @@ const s = (colors: ReturnType<typeof useColors>) =>
       alignItems: "center",
       gap: 7,
       paddingHorizontal: 16,
-      paddingVertical: 8,
+      paddingVertical: 10,
     },
     disclaimerText: {
-      fontSize: 12,
+      fontSize: 15,
       fontFamily: "Inter_400Regular",
       flex: 1,
     },
@@ -438,18 +438,18 @@ const s = (colors: ReturnType<typeof useColors>) =>
       justifyContent: "center",
     },
     agentName: {
-      fontSize: 13,
+      fontSize: 16,
       fontFamily: "Inter_600SemiBold",
     },
     messageText: {
-      fontSize: 17,
+      fontSize: 20,
       fontFamily: "Inter_400Regular",
-      lineHeight: 26,
+      lineHeight: 30,
     },
     messageTime: {
-      fontSize: 11,
+      fontSize: 14,
       fontFamily: "Inter_400Regular",
-      marginTop: 5,
+      marginTop: 6,
       textAlign: "right",
     },
     inputBar: {
@@ -465,11 +465,11 @@ const s = (colors: ReturnType<typeof useColors>) =>
       borderRadius: 24,
       borderWidth: 1.5,
       paddingHorizontal: 18,
-      paddingVertical: 14,
-      fontSize: 17,
+      paddingVertical: 16,
+      fontSize: 20,
       fontFamily: "Inter_400Regular",
-      maxHeight: 120,
-      lineHeight: 24,
+      maxHeight: 140,
+      lineHeight: 28,
     },
     sendButton: {
       width: 52,
