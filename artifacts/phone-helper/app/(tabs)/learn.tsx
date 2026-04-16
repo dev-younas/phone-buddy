@@ -8,6 +8,7 @@ import {
   Platform,
   TouchableOpacity,
   Image,
+  Switch,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
@@ -21,7 +22,7 @@ import * as Haptics from "expo-haptics";
 export default function LearnScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { deviceType, tutorialProgress } = useApp();
+  const { deviceType, tutorialProgress, isDarkMode, setIsDarkMode } = useApp();
   const isAndroid = deviceType === "android";
 
   const scrollY = useRef(new Animated.Value(0)).current;
@@ -130,6 +131,26 @@ export default function LearnScreen() {
               {isAndroid ? "Android Tutorials" : "iPhone Tutorials"}
             </Text>
           </View>
+
+          <TouchableOpacity
+            style={[
+              s.themeToggleBtn,
+              { backgroundColor: isDarkMode ? colors.card : "#FFFFFF", borderColor: colors.muted },
+            ]}
+            onPress={() => {
+              if (Platform.OS !== "web") {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              }
+              setIsDarkMode(!isDarkMode);
+            }}
+            activeOpacity={0.82}
+          >
+            <Feather
+              name={isDarkMode ? "sun" : "moon"}
+              size={22}
+              color={isDarkMode ? "#F5A623" : colors.primary}
+            />
+          </TouchableOpacity>
         </Animated.View>
 
         <Animated.View style={{ transform: [{ translateY: contentSlide }] }}>
@@ -218,6 +239,19 @@ const styles = (colors: ReturnType<typeof useColors>, insets: ReturnType<typeof 
       paddingBottom: 24,
       paddingTop: 12,
       gap: 16,
+    },
+    themeToggleBtn: {
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      alignItems: "center",
+      justifyContent: "center",
+      borderWidth: 1.5,
+      shadowColor: colors.primary,
+      shadowOffset: { width: 0, height: 3 },
+      shadowOpacity: 0.12,
+      shadowRadius: 8,
+      elevation: 3,
     },
     logoContainer: {
       width: 68,

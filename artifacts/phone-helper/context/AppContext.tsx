@@ -82,9 +82,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       } else {
         const code = generateReferralCode();
         setReferralCode(code);
-        const sysScheme = Appearance.getColorScheme();
-        const dark = sysScheme === "dark";
-        setIsDarkModeState(dark);
         const welcome: ChatMessage = {
           id: "welcome",
           text: "Hi there! 👋 Welcome to PhoneBuddy support! I'm Sarah, your support buddy. How can I help you today?",
@@ -92,7 +89,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           timestamp: Date.now(),
         };
         setChatMessages([welcome]);
-        saveStatePartial({ referralCode: code, isDarkMode: dark, chatMessages: [welcome] });
+        saveStatePartial({ referralCode: code, isDarkMode: false, chatMessages: [welcome] });
       }
     } catch (e) {
       const code = generateReferralCode();

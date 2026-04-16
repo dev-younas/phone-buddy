@@ -45,8 +45,8 @@ const lightPalette = {
 const darkPalette = {
   background: "#0A0F2C",
   card: "#0D1B3E",
-  foreground: "#E8ECF4",
-  cardForeground: "#E8ECF4",
+  foreground: "#E0E0E0",
+  cardForeground: "#E0E0E0",
 
   primary: "#7EB3FF",
   primaryForeground: "#0A0F2C",
@@ -55,13 +55,13 @@ const darkPalette = {
   secondaryForeground: "#ffffff",
 
   muted: "#1A2C5A",
-  mutedForeground: "#8A97BB",
+  mutedForeground: "#A0AABD",
 
   accent: "#FFD700",
   accentForeground: "#0A0F2C",
 
   tint: "#7EB3FF",
-  text: "#E8ECF4",
+  text: "#E0E0E0",
   surface: "#0A0F2C",
   surfaceCard: "#112255",
   highlight: "#7EB3FF",
@@ -83,7 +83,7 @@ const darkPalette = {
   chatBubbleUser: "#5B8DE8",
   chatBubbleAgent: "#112255",
   chatBubbleUserText: "#FFFFFF",
-  chatBubbleAgentText: "#E8ECF4",
+  chatBubbleAgentText: "#E0E0E0",
 };
 
 const colors = {
